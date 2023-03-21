@@ -12,9 +12,6 @@ PASS = True
 FAIL = False
 
 ##################
-# successor function for tasks:
-NO_SKIP = 1
-##################
 # Messages:
 STUDENT_NOT_EXISTS = "Student does not exists"
 STUDENT_NOT_PENDING = {REJECTED: "Student rejected", ACCEPTED: "Student accepted"}
@@ -35,11 +32,16 @@ STEP_PAYLOAD = "step_payload"
 ACTION_STATUS = "action_status"
 STUDENT_STATUS = "student_status"
 CURRENT_TASK = "current_task"
-
+##################
+# successor function for tasks if :
+NO_SKIP = 1
 ##################
 # Steps/Tasks:
 # a step includes the following attributes: name and list of tasks
-# a task includes the following attributes: name, pass/fail condition, skip condition, next task (successor), input: arguments for task
+# a task includes the following attributes: name: task's name, pass_condition: an arithmetic/boolean formula for
+# completing the task, skip_condition: arithmetic/boolean formula for evaluating whether we can skip "next_task" steps (
+# if evaluates to False use the NO_SKIP global parameter), next task: the amount of steps skipped given skip_condition
+# is fulfilled, input: arguments for task
 ###
 
 PERSONAL_DETAILS_FORM = {"step_name": "Personal Details Form",
