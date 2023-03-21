@@ -1,65 +1,57 @@
 from Service import globals
 from Service.Task import Task
+from Service.ServicePipeline import StagePipeline
 
 
-class Step:
+class Step(StagePipeline):
 
     def __init__(self, step):
-        self.tasks_pipeline = []
-        self.status = globals.PENDING
-        self.task_index = 0
-        self.name = step["step_name"]
-        self.parse_tasks(step["tasks"])
+        super().__init__(step[globals.TASKS], Task)
+        self.name = step[globals.STEP_NAME]
 
-    def parse_tasks(self, tasks):
-        for task in tasks:
-            self.tasks_pipeline.append(Task(task))
+    def get_flow(self):
+        current_task = self._stages_pipeline[self._stage_index].name if self._status == globals.PENDING else ""
+        step_name = self.name if self._status == globals.PENDING else ""
+        return {globals.STUDENT_STATUS: globals.STATUS_STRING[self._status], globals.STEP_NAME: step_name,
+                globals.CURRENT_TASK: current_task}
 
-    def check_status(self):
-        return {"status": self._status_to_string(), "tasks_completed": self._get_length(self.task_index),
-                "total_tasks": self._get_length(len(self.tasks_pipeline))}
+    def _validate_input(self, arguments):
+        return self._stages_pipeline[self._stage_index].validate_input(arguments)
 
-    def validate_input(self, argument):
-        if self.status != globals.PENDING:
-            return True
-        return self.tasks_pipeline[self.task_index].validate_input(argument)
-
-    def update_step(self, arguments):
-        task_status = self.tasks_pipeline[self.task_index].attempt_task(arguments)
+    def update_pipeline(self, arguments):
+        print(arguments)
+        if self._status != globals.PENDING:
+            return {globals.ACTION_STATUS: globals.PASS, globals.STUDENT_STATUS: self._status}
+        validation = self._validate_input(arguments)
+        if not validation:
+            return {globals.ACTION_STATUS: globals.FAIL, globals.STUDENT_STATUS: self._status}
+        task_status = self._stages_pipeline[self._stage_index].attempt_task(arguments)
         self._update_status(task_status)
-        return self.status
+        return {globals.ACTION_STATUS: globals.PASS, globals.STUDENT_STATUS: self._status}
 
     def _update_status(self, task_status):
-        if task_status == globals.ACCEPTED:
-            self.task_index += self.tasks_pipeline[self.task_index].next()
-            if self.task_index == len(self.tasks_pipeline):
-                self.status = globals.ACCEPTED
-        else:
-            self.status = globals.REJECTED
-
-    def _status_to_string(self):
-        if self.status == globals.REJECTED:
-            return "rejected"
-        elif self.status == globals.ACCEPTED:
-            return "accepted"
-        return "pending"
-
-    def __repr__(self):
-        return self.name + " with tasks: " + str(self._get_available_tasks()) + ", current task to perform: " + str(
-            self.tasks_pipeline[self.task_index])
+        if task_status == globals.REJECTED:
+            self._status = globals.REJECTED
+            return
+        self._stage_index += self._stages_pipeline[self._stage_index].next()
+        if self._stage_index == len(self._stages_pipeline):
+            self._status = globals.ACCEPTED
 
     def _get_available_tasks(self):
         tasks = []
         index = 0
-        while index < len(self.tasks_pipeline):
-            tasks.append(self.tasks_pipeline[index])
+        while index < len(self._stages_pipeline):
+            tasks.append(self._stages_pipeline[index])
             index += tasks[-1].next()
         return tasks
 
-    def _get_length(self, max_length):
+    def get_task_count(self):
         length = 0
         index = 0
-        while index < max_length:
-            index += self.tasks_pipeline[index].next()
+        while index < len(self._stages_pipeline):
+            index += self._stages_pipeline[index].next()
             length += 1
         return length
+
+    def get_step_description(self):
+        return {self.name: [task.name for task in self._stages_pipeline]}

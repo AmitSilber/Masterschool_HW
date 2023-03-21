@@ -4,6 +4,8 @@ REJECTED = 0
 PENDING = -1
 ACCEPTED = 1
 
+STATUS_STRING = {REJECTED: "Rejected", PENDING: "In progress", ACCEPTED: "Accepted"}
+
 ##################
 # Action status:
 PASS = True
@@ -17,11 +19,22 @@ NO_SKIP = 1
 STUDENT_NOT_EXISTS = "Student does not exists"
 STUDENT_NOT_PENDING = {REJECTED: "Student rejected", ACCEPTED: "Student accepted"}
 INVALID_INPUTS = "Inputs are invalid"
-PENDING_MESSAGE = "Current status is Pending"
+PENDING_MESSAGE = "Current status is in progress"
+EMPTY_STEP = {"step_name": "", "current_task": ""}
+ACCEPTED_STEP = {"status": "Accepted", "step_name": "", "current_task": ""}
 
 ##################
-# Input separation
+# External parameters
 SEPARATOR = ","
+USER_ID = "user_id"
+STEP_NAME = "step_name"
+TASKS = "tasks"
+STEP_PAYLOAD = "step_payload"
+##################
+# Internal parameters
+ACTION_STATUS = "action_status"
+STUDENT_STATUS = "student_status"
+CURRENT_TASK = "current_task"
 
 ##################
 # Steps/Tasks:
@@ -41,13 +54,13 @@ IQ = {"step_name": "IQ test",
                  "pass_condition": "int(score) > 60",
                  "skip_condition": "int(score) > 80",
                  "next_task": "2",
-                 "inputs": "user_Id,test id,score,timestamp",
+                 "inputs": "user_id,test_id,score,timestamp",
                  },
                 {"task_name": "IQ test retry",
                  "pass_condition": "int(score_retry) > 80",
                  "skip_condition": "False",
                  "next_task": "1",
-                 "inputs": "user_Id,test id,score,timestamp",
+                 "inputs": "user_id,test_id,score_retry,timestamp",
                  }
                 ]}
 INTERVIEW = {"step_name": "Interview",
@@ -61,7 +74,7 @@ INTERVIEW = {"step_name": "Interview",
                         "pass_condition": "decision == \"passed_interview\"",
                         "skip_condition": "False",
                         "next_task": "1",
-                        "inputs": "user id,interview_date,interviewer_id,decision",
+                        "inputs": "user_id,interview_date,interviewer_id,decision",
                         }]
              }
 SIGN_CONTACT = {"step_name": "Sign Contract",

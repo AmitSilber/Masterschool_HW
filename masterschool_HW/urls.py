@@ -18,7 +18,15 @@ from django.urls import path
 from task import views
 
 urlpatterns = [
-    path('task/list', views.get_task),
-    path('task/add_student', views.add_student),
-    path('task/check_student', views.check_student),
+    path('flow', views.get_flow),
+    path('state', views.get_state),
+    path('status', views.get_status),
+    path('complete_step', views.make_step)
 ]
+
+"""
+1. Get - The entire flow (so that we can write to the user ”you are in step 3 / 8” and what steps are left).
+2. Get - Current step and task for a specific user.
+3. Post - Step completed (step_name, user_id, step_payload)
+4. Get - Whether the user is accepted, rejected or in progress.
+"""

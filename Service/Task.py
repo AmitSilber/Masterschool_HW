@@ -4,6 +4,10 @@ from Service import globals
 class Task:
 
     def __init__(self, task_json):
+        """
+
+        @param task_json: a json file with the task description
+        """
         self.name = task_json["task_name"]
         self.pass_condition = task_json["pass_condition"]
         self.skip_condition = task_json["skip_condition"]
@@ -20,7 +24,7 @@ class Task:
             return self.next_task
 
     def validate_input(self, arguments):
-        return set(arguments.keys()) == self.inputs
+        return self.inputs.issubset(set(arguments.keys()))
 
     def attempt_task(self, arguments):
         self.results = arguments
